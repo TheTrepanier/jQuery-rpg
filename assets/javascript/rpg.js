@@ -19,7 +19,7 @@ var electricPartner = {
         hp: 230,
         attack: 19,
         counterPower: 29,
-        sprite: "assets/images/1/1/3.png"
+        sprite: "assets/images/1/1/3a.png"
     }
 };
 var grassPartner = {
@@ -92,9 +92,12 @@ var waterPartner = {
     }
 };
 var pokemon = [electricPartner, grassPartner, firePartner, waterPartner]
+var playerIndex;
+var opponentIndex;
 
 // Visual Elements
 var masthead = $("<h1>").text("Choose Your Partner!").addClass("text-center my-4").attr("id","masthead");
+var victoryText = $("<p>").addClass("text-center");
 var displayRow = $("<div>").addClass("row");
 var attackButton = $("<button>").addClass("btn btn-danger").attr("id", "attack-button").text("Attack!");
 
@@ -118,18 +121,6 @@ var opponentsCardColumns = $("<div>").addClass("card-columns col-9").attr("id", 
 // Game Elements
 var playerPartner;
 var currentOpponent;
-
-function playerAttacksRoundOne() {
-    currentOpponent.levelOne.hp -= playerPartner.levelOne.attack;
-    playerPartner.levelOne.attack += playerPartner.levelOne.attack;
-    playerPartner.levelOne.hp -= currentOpponent.levelOne.counterPower;
-
-    $("#current-opponent-hp").text("HP: " + currentOpponent.levelOne.hp);
-    $("#player-hp-box").text("HP: " + playerPartner.levelOne.hp);
-
-    // make if statement to check if hp of either pokemon is <= 0
-    // if player wins clear 
-}
 
 function gameStart() {
     $("#root").append(masthead);
@@ -221,12 +212,193 @@ function roundOneStart() {
     currentOpponentCard.append(currentOpponentImage, currentOpponentCardBody).css("width", "15rem").addClass("mx-auto");
     currentOpponentWrapper.append(currentOpponentCard);
 
-
     $("#round-one-row").append(partnerCardWrapper, currentOpponentWrapper);
-
     $("#attack-button").on("click", playerAttacksRoundOne);
 }
 
+function playerAttacksRoundOne() {
+    currentOpponent.levelOne.hp -= playerPartner.attack;
+    playerPartner.attack += playerPartner.levelOne.attack;
+    playerPartner.levelOne.hp -= currentOpponent.levelOne.counterPower;
+    $("#current-opponent-hp").text("HP: " + currentOpponent.levelOne.hp);
+    $("#player-hp-box").text("HP: " + playerPartner.levelOne.hp);
+
+    if (playerPartner.levelOne.hp <= 0) {
+        $("#root").empty();
+        // game over, reload game.
+    }
+    if (currentOpponent.levelOne.hp <= 0) {
+        $("#root").empty();
+        var goToRoundTwoButton = $("<button>").attr("id", "go-to-round-two").addClass("btn btn-success btn-lg col-12").text("Start Round Two!");
+        masthead.text("Congrats you beat " + currentOpponent.levelOne.name + "!");
+        victoryText.text("Huh?! " + playerPartner.levelOne.name + " is evolving!");
+        $("#root").append(masthead, victoryText, goToRoundTwoButton);
+        $("#go-to-round-two").on("click", function() {
+            opponentIndex = pokemon.indexOf(currentOpponent);
+            pokemon.splice(opponentIndex, 1);
+            console.log(pokemon);
+            selectOpponentRoundTwo();
+        });
+    }
+}
+
+function selectOpponentRoundTwo() {
+    $("#root").empty();
+    displayRow.empty();
+    masthead.text("Choose Your Opponent");
+    displayRow.attr("id", "battle-row-two");
+    $("#root").append(masthead, displayRow);
+
+    for (let index = 0; index < pokemon.length; index++) {
+        var opponent = pokemon[index];
+        var opponentCard = $("<div>").addClass("card opponent-card mx-auto").css("width", "12rem").attr("data-opponent", index);
+        var opponentImage = $("<img>").addClass("card-img-top");
+        var opponentCardBody = $("<div>").addClass("card-body");
+        var opponentCardBodyTitle = $("<h4>").addClass("card-title text-center");
+        var opponentCardBodyText = $("<p>").addClass("card-text text-center");
+        
+        opponentImage.attr("src", opponent.levelTwo.sprite);
+        opponentCardBodyTitle.text(opponent.levelTwo.name);
+        opponentCardBodyText.text("HP: " + opponent.levelTwo.hp);
+        opponentCardBody.append(opponentCardBodyTitle, opponentCardBodyText);
+        opponentCard.append(opponentImage, opponentCardBody);
+
+        displayRow.append(opponentCard);
+
+        $(".opponent-card").mouseover(function() {
+            $(this).addClass("text-white bg-danger");
+        });
+        $(".opponent-card").mouseout(function() {
+            $(this).removeClass("text-white bg-danger");
+        });
+    
+        $(".opponent-card").on("click", function() {
+            currentOpponent = pokemon[$(this).attr("data-opponent")]
+            // console.log(currentOpponent);
+            roundTwoStart();
+        });
+    }
+}
+
+function roundTwoStart() {
+    masthead.text(playerPartner.levelTwo.name + " VS. " + currentOpponent.levelTwo.name);
+    displayRow.empty();
+    displayRow.attr("id", "round-two-row");
+    playerPartner.attack = playerPartner.levelTwo.attack;
+
+    partnerImage.attr("src", playerPartner.levelTwo.sprite);
+    partnerCardBodyTitle.text(playerPartner.levelTwo.name);
+    partnerCardBodyText.text("HP: " + playerPartner.levelTwo.hp);
+
+    currentOpponentImage.attr("src", currentOpponent.levelTwo.sprite);
+    currentOpponentCardBodyTitle.text(currentOpponent.levelTwo.name);
+    currentOpponentCardBodyText.text("HP: " + currentOpponent.levelTwo.hp);
+
+    $("#round-two-row").append(partnerCardWrapper, currentOpponentWrapper);
+    $("#attack-button").on("click", playerAttacksRoundTwo);
+}
+
+function playerAttacksRoundTwo() {
+    currentOpponent.levelTwo.hp -= playerPartner.attack;
+    playerPartner.attack += playerPartner.levelTwo.attack;
+    playerPartner.levelTwo.hp -= currentOpponent.levelTwo.counterPower;
+    $("#current-opponent-hp").text("HP: " + currentOpponent.levelTwo.hp);
+    $("#player-hp-box").text("HP: " + playerPartner.levelTwo.hp);
+
+    if (playerPartner.levelTwo.hp <= 0) {
+        $("#root").empty();
+        // game over function
+    }
+    if (currentOpponent.levelTwo.hp <= 0) {
+        $("#root").empty();        
+        var goToFinalRoundButton = $("<button>").attr("id", "go-to-final-round").addClass("btn btn-success btn-lg col-12").text("The Final Challanger Approaches!");
+        masthead.text("Congrats you beat " + currentOpponent.levelTwo.name + "!");
+        victoryText.text(playerPartner.levelTwo.name + " Is evolving!");
+        $("#root").append(masthead, victoryText, goToFinalRoundButton);
+        $("#go-to-final-round").on("click", function() {
+            opponentIndex = pokemon.indexOf(currentOpponent);
+            pokemon.splice(opponentIndex, 1);
+            console.log(pokemon);
+            selectFinalOpponent();
+        });
+    }
+}
+
+function selectFinalOpponent() {
+    $("#root").empty();
+    displayRow.empty();
+    masthead.text("Approach Your Final Opponent!");
+    displayRow.attr("id", "final-battle-row");
+    $("#root").append(masthead, displayRow);
+
+    for (let index = 0; index < pokemon.length; index++) {
+        var opponent = pokemon[index];
+        console.log(opponent);
+        var opponentCard = $("<div>").addClass("card opponent-card mx-auto").css("width", "12rem").attr("data-opponent", index);
+        var opponentImage = $("<img>").addClass("card-img-top");
+        var opponentCardBody = $("<div>").addClass("card-body");
+        var opponentCardBodyTitle = $("<h4>").addClass("card-title text-center");
+        var opponentCardBodyText = $("<p>").addClass("card-text text-center");
+
+        opponentImage.attr("src", opponent.levelThree.sprite);
+        opponentCardBodyTitle.text(opponent.levelThree.name);
+        opponentCardBodyText.text("HP: " + opponent.levelThree.hp);
+        opponentCardBody.append(opponentCardBodyTitle, opponentCardBodyText);
+        opponentCard.append(opponentImage, opponentCardBody);
+
+        displayRow.append(opponentCard);
+
+        $(".opponent-card").mouseover(function() {
+            $(this).addClass("text-white bg-danger");
+        });
+        $(".opponent-card").mouseout(function() {
+            $(this).removeClass("text-white bg-danger");
+        });
+    
+        $(".opponent-card").on("click", function() {
+            currentOpponent = pokemon[$(this).attr("data-opponent")]
+            // console.log(currentOpponent);
+            finalRoundStarts();
+        });
+    }
+}
+
+function finalRoundStarts() {
+    masthead.text(playerPartner.levelThree.name + " Vs. " + currentOpponent.levelThree.name);
+    displayRow.empty();
+    displayRow.attr("id", "final-round-row");
+    playerPartner.attack = playerPartner.levelThree.attack;
+
+    partnerImage.attr("src", playerPartner.levelThree.sprite);
+    partnerCardBodyTitle.text(playerPartner.levelThree.name);
+    partnerCardBodyText.text("HP: " + playerPartner.levelThree.hp);
+
+    currentOpponentImage.attr("src", currentOpponent.levelThree.sprite);
+    currentOpponentCardBodyTitle.text(currentOpponent.levelThree.name);
+    currentOpponentCardBodyText.text("HP: " + currentOpponent.levelThree.hp);
+
+    $("#final-round-row").append(partnerCardWrapper, currentOpponentWrapper);
+    $("#attack-button").on("click", playerAttacksFinalRound)
+}
+
+function playerAttacksFinalRound() {
+    currentOpponent.levelThree.hp -= playerPartner.attack;
+    playerPartner.attack += playerPartner.levelThree.attack;
+    playerPartner.levelThree.hp -= currentOpponent.levelThree.counterPower;
+    $("#current-opponent-hp").text("HP: " + currentOpponent.levelThree.hp);
+    $("#player-hp-box").text("HP: " + playerPartner.levelThree.hp);
+
+    if (playerPartner.levelThree.hp <= 0) {
+        // game over
+    }
+
+    if (currentOpponent.levelThree.hp <= 0) {
+        $("#root").empty();
+        displayRow.empty();
+        masthead.text("Congratulations You Are The New Champion!");
+        $("#root").append(masthead);
+    }
+}
 
 $(document).ready(function(){
 
@@ -251,6 +423,7 @@ $(document).ready(function(){
 
     $(".character-card").on("click", function() {
         playerPartner = pokemon[$(this).attr("data-partner")];
+        playerPartner.attack = playerPartner.levelOne.attack;
         // console.log(playerPartner);
         
         $("#confirmationButtonSection").empty();
@@ -259,8 +432,10 @@ $(document).ready(function(){
         $("#confirmationButtonSection").append(confirmationButton);
 
         $("#confirmPartnerButton").on("click", function() {
-            var playerIndex = pokemon.indexOf(playerPartner);
+            playerIndex = pokemon.indexOf(playerPartner);
             pokemon.splice(playerIndex, 1);
+            console.log(pokemon);
+            
 
             partnerHasBeenSelected();
         });
