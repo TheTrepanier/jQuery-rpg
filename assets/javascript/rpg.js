@@ -91,7 +91,7 @@ var waterPartner = {
         sprite: "assets/images/1/4/3.png"
     }
 };
-var pokemon = [electricPartner, grassPartner, firePartner, waterPartner]
+var pokemon = [electricPartner, grassPartner, firePartner, waterPartner];
 var playerIndex;
 var opponentIndex;
 
@@ -134,7 +134,7 @@ function gameStart() {
         var charactedCardBody = $("<div>");
 
         characterCard.addClass("card col-md-3 px-4 character-card");
-        characterCard.attr("data-partner", index)
+        characterCard.attr("data-partner", index);
 
         characterImage.attr("src", character.levelOne.sprite);
         characterImage.addClass("card-img-top");
@@ -159,7 +159,7 @@ function partnerHasBeenSelected() {
 
     partnerImage.attr("src", playerPartner.levelOne.sprite);
     partnerCardBodyTitle.text(playerPartner.levelOne.name);
-    partnerCardBodyText.text("HP: " + playerPartner.levelOne.hp)
+    partnerCardBodyText.text("HP: " + playerPartner.levelOne.hp);
     partnerCardBody.append(partnerCardBodyTitle, partnerCardBodyText);
     partnerCard.append(partnerImage, partnerCardBody);
     partnerCardWrapper.addClass("col-3").append(partnerCard);
@@ -191,7 +191,7 @@ function partnerHasBeenSelected() {
     });
 
     $(".opponent-card").on("click", function() {
-        currentOpponent = pokemon[$(this).attr("data-opponent")]
+        currentOpponent = pokemon[$(this).attr("data-opponent")];
         // console.log(currentOpponent);
         roundOneStart();
     });
@@ -273,7 +273,7 @@ function selectOpponentRoundTwo() {
         });
     
         $(".opponent-card").on("click", function() {
-            currentOpponent = pokemon[$(this).attr("data-opponent")]
+            currentOpponent = pokemon[$(this).attr("data-opponent")];
             // console.log(currentOpponent);
             roundTwoStart();
         });
@@ -356,7 +356,7 @@ function selectFinalOpponent() {
         });
     
         $(".opponent-card").on("click", function() {
-            currentOpponent = pokemon[$(this).attr("data-opponent")]
+            currentOpponent = pokemon[$(this).attr("data-opponent")];
             // console.log(currentOpponent);
             finalRoundStarts();
         });
@@ -378,7 +378,7 @@ function finalRoundStarts() {
     currentOpponentCardBodyText.text("HP: " + currentOpponent.levelThree.hp);
 
     $("#final-round-row").append(partnerCardWrapper, currentOpponentWrapper);
-    $("#attack-button").on("click", playerAttacksFinalRound)
+    $("#attack-button").on("click", playerAttacksFinalRound);
 }
 
 function playerAttacksFinalRound() {
